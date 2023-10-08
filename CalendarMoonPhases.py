@@ -89,8 +89,7 @@ class LinkedList:
     days_since_new_moon = jdn - new_moon_jdn
     lunar_phase = (days_since_new_moon % lunar_cycle) / lunar_cycle * 8
     rounded_phase = round(lunar_phase) % 8
-    phases = [
-        Fore.LIGHTWHITE_EX, Fore.CYAN, Fore.MAGENTA,Fore.LIGHTBLACK_EX ,Fore.YELLOW, Fore.BLUE,Fore.RED,Fore.GREEN]
+    phases = [Fore.LIGHTWHITE_EX, Fore.CYAN, Fore.MAGENTA,Fore.LIGHTBLACK_EX ,Fore.YELLOW, Fore.BLUE,Fore.RED,Fore.GREEN]
     
     return (phases[rounded_phase])
 
@@ -109,12 +108,26 @@ class LinkedList:
                 '{:02d}/{:02d}/{:04d}'.format(*fecha), "es:",
                 cur_node.dictDay[i]["faseLunar"])
       cur_node = cur_node.next
+      
+  def searchHairCutDay(self, year, month, day,buscado):
+    cur_node = self.head
+    siguiente = cur_node.next
+    while ((cur_node is not None) and (siguiente.numberMonth != month + 1)):
+      for i in range(day-1, len(cur_node.dictDay)):
+        if (cur_node.numberMonth == month):
+          cur_node.dictDay[i]["faseLunar"] = self.lunarPhase(cur_node.year, cur_node.numberMonth, cur_node.dictDay[i]["dia"])
+          if (i>=day) and (cur_node.dictDay[i]["faseLunar"]==buscado):
+            fecha = (i+1, month, year)
+            print("La fecha proxima para cortarse el cabello es: ",'{:02d}/{:02d}/{:04d}'.format(*fecha))
+          elif i>=len(cur_node.dictDay):
+            print("para el mes actual no existe proxima fecha para el corte que buscas")
+      cur_node = cur_node.next
 
   def displayCalendar(self, start_day, year):
     days_of_week = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"]
     cur_node = self.head
-    print(Fore.LIGHTWHITE_EX+" Luna Nueva🌑\n",Fore.CYAN +"Luna Nueva Visible🌒\n",Fore.MAGENTA + "Luna Cuarto Creciente🌓\n",
-       Fore.LIGHTBLACK_EX + "Luna Gibada Creciente🌔\n", Fore.YELLOW+"Luna Llena🌕\n",Fore.BLUE+ "Luna Gibada Menguante🌖\n", Fore.RED+"Cuarto Menguante🌗\n",Fore.GREEN+ "Luna Menguante🌘\n"+Style.RESET_ALL)
+    print(Fore.LIGHTWHITE_EX+" Luna Nueva🌑\n",Fore.CYAN +"Luna Nueva Visible🌒\n",Fore.MAGENTA + "Luna Cuarto Creciente🌓\n",Fore.LIGHTBLACK_EX + "Luna Gibada Creciente🌔\n", Fore.YELLOW+"Luna Llena🌕\n",Fore.BLUE+ "Luna Gibada Menguante🌖\n", Fore.RED+"Cuarto Menguante🌗\n",Fore.GREEN+ "Luna Menguante🌘\n"+Style.RESET_ALL)
+    
     print(str(cur_node.year).center(21, "-") + "+")
     print(" " * 21 + "|")
     while cur_node is not None:
@@ -141,19 +154,15 @@ class LinkedList:
       start_day = (start_day + cur_node.days) % 7
       cur_node = cur_node.next
     print("-" * 21 + "+")
-
+    
   def remove_month_days(self):
     self.head = None
 
-
 months = LinkedList()
-
 
 def set_month_days(year):
   months.append("Enero", 31, year)
-  months.append(
-      "Febrero", 28 if not year % 4 == 0 or
-      (year % 100 == 0 and not year % 400 == 0) else 29, year)
+  months.append("Febrero", 28 if not year % 4 == 0 or (year % 100 == 0 and not year % 400 == 0) else 29, year)
   months.append("Marzo", 31, year)
   months.append("Abril", 30, year)
   months.append("Mayo", 31, year)
@@ -165,22 +174,18 @@ def set_month_days(year):
   months.append("Noviembre", 30, year)
   months.append("Diciembre", 31, year)
 
-
 def get_first_day_of_year(year):
   day = (1 + 5 * ((year - 1) % 4) + 4 * ((year - 1) % 100) + 6 *
          ((year - 1) % 400)) % 7
   days = [0, 1, 2, 3, 4, 5, 6]
   return days[day]
 
-
 yearCalendar = int(input("Digite el año del Calendario a imprimir\n"))
 set_month_days(yearCalendar)
 x = 0
-while (x != 4):
+while (x != 5):
   x = int(
-      input(
-          "---------elige la opcion a ejecutar---------\n1)Imprimir Calendario\n2)Buscar la Fase Lunar en una fecha especifica\n3)Cambiar el año a ejecutar\n4)Salir\n"
-      ))
+    input("---------Elige la opcion a ejecutar---------\n1)Imprimir Calendario\n2)Buscar la Fase Lunar en una fecha especifica\n3)Buscar dia para corte de cabello en el mes\n4)Cambiar el año a ejecutar\n5)Salir\n"))
   if (x == 1):
     print("\n===========================================\n")
     months.displayCalendar(get_first_day_of_year(yearCalendar), yearCalendar)
@@ -192,13 +197,24 @@ while (x != 4):
     months.displayPhase(yearCalendar, mesFase, diaFase)
     print("\n===========================================\n")
   elif (x == 3):
+    mesActual = int(input("Ingresa el mes actual(1-12)\n"))
+    diaActual = int(input("Ingresa el dia actual\n"))
+    corte=int(input("Digita el numero segun tu necesidad de corte de cabello:\n1)Crecimiento del cabello rapido\n2)Crecimiento del cabello sano y abundante\n3)Crecimiento del cabello ralentizado\n"))
+    wanted=""
+    if corte==1:
+      wanted="Luna Cuarto Creciente🌓"
+    elif corte==2:
+      wanted="Luna Llena🌕"
+    elif corte==3:
+      wanted="Cuarto Menguante🌗"
+    print("\n===========================================\n")
+    months.searchHairCutDay(yearCalendar, mesActual, diaActual,wanted)
+    print("\n===========================================\n")
+  elif (x == 4):
     months.remove_month_days()
     yearCalendar = int(input("Digite el año del Calendario a imprimir\n"))
     set_month_days(yearCalendar)
-  elif (x == 4):
+  elif (x == 5):
     print("\nEl programa fue finalizado con exito.\n")
   else:
-    x = int(
-        input(
-            "---------elige la opcion a ejecutar---------\n1)Imprimir Calendario\n2)Buscar la Fase Lunar en una fecha especifica\n3)Cambiar el año a ejecutar\n4)Salir\n"
-        ))
+    print("El numero digitado está fuera del rango")
